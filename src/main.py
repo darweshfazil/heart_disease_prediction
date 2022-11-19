@@ -5,7 +5,6 @@ from db.db_helpers import *
 from models.fast_api_models import *
 from models.models import *
 from prediction.prediction import *
-import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 app=FastAPI()
 
@@ -141,6 +140,3 @@ def patient_my_records(token:str):
 def patient_date_records(request:TokenRequest):
     print(request.dict())
     return {"message":"suscces"}
-
-if __name__ == "__main__":
-  uvicorn.run("main:app", reload=True)
