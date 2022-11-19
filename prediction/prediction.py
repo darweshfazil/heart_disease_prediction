@@ -13,24 +13,6 @@ import os
 def initialize_dataset():
     global df
     df = pd.read_csv('prediction/heart.csv')
-
-def get_user_data():
-    print("get_user_data")
-    
-def get_data():
-    return df
-
-def get_info():
-    return df.info()
-
-def describe():
-    return df.describe()
-
-def get_head():
-    return df.head()
-
-def get_histogram():
-    return df.hist()
    
 def train_model():
     from sklearn.ensemble import RandomForestRegressor
@@ -55,11 +37,13 @@ def get_prediction(record):
     pickled_model = pickle.load(open('prediction/model.pkl', 'rb'))
     
     val = pickled_model.predict(X_test)
-    
+    print(val)
+    tar= val*100
+    print(tar)
     add_data(X_test, int(val), df)
     #add data to the csv
     #initiate training with new data
-    record.target = int(val)
+    record.target = int(tar)
     return record
 
 def add_data(X_test, val, df):

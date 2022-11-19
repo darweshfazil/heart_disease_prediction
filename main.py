@@ -6,20 +6,28 @@ from models.fast_api_models import *
 from models.models import *
 from prediction.prediction import *
 import uvicorn
-
+from fastapi.middleware.cors import CORSMiddleware
 app=FastAPI()
+
+origins = [
+    "*",
+    "http://localhost:3000",
+     "http://localhost:3000/addpatient",
+     "http://localhost:3000/patientprogress",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
-
-#add more routes
-
-#Admin routes 
-
-
-#Doctor Routes
 @app.post('/doctor/login', status_code=status.HTTP_200_OK)
 def doctor_login(request:LoginRequest):
  
@@ -52,8 +60,8 @@ def doctor_register(request:Doctor):
 
 
 @app.post('/doctor/get-patients')
-def doctor_get_patients(token:str):
-    present,id = verifyToken(token)
+def doctor_get_patients(token:TokenRequest):
+    present,id = verifyToken(token.token)
     if present:
         result = fetch_operation(Queries.FETCH_PATIENTS_OF_DOCTOR,(id,))
         return {"message":"Success","result":result}
@@ -63,8 +71,8 @@ def doctor_get_patients(token:str):
         raise HTTPException(404,data)
 
 @app.post('/doctor/all-records')
-def doctor_all_records(token:str):
-    present,id = verifyToken(token)
+def doctor_all_records(token:TokenRequest):
+    present,id = verifyToken(token.token)
     if present:
         result = fetch_operation(Queries.MY_PATIENTS_ALL_RECORDS,(id,))
         #have to refine columns
@@ -133,11 +141,6 @@ def patient_my_records(token:str):
 def patient_date_records(request:TokenRequest):
     print(request.dict())
     return {"message":"suscces"}
-
-#all patients
-
-
-#DB routes
 
 if __name__ == "__main__":
   uvicorn.run("main:app", reload=True)

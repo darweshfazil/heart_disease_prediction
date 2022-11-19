@@ -46,7 +46,8 @@ class Record(BaseModel):
         return (self.id,self.age,self.sex,self.cp,self.trestbps,self.chol,self.fbs,self.restecg,
         self.thalach,self.exang,self.oldpeak,self.slope,self.ca,self.thal,self.target,self.date,self.time,)
 
-
+class TokenRequest(BaseModel):
+    token:str
 # data ={
 #     "id":1,
 #    "age": 52,
