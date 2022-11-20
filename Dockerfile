@@ -4,5 +4,4 @@ WORKDIR /app
 COPY /src /app/
 COPY ./requirements.txt /app
 RUN pip install -r requirements.txt
-EXPOSE 8080
-CMD exec python main.py
+ENTRYPOINT ["python3", "main.py"]
