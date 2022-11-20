@@ -140,3 +140,9 @@ def patient_my_records(token:str):
 def patient_date_records(request:TokenRequest):
     print(request.dict())
     return {"message":"suscces"}
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    server_port = int(os.environ.get('PORT', 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=server_port, log_level="info")
