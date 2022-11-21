@@ -1,5 +1,5 @@
 from fastapi import FastAPI,HTTPException,status,BackgroundTasks
-from utils.auth_utils import genToken, verifyToken
+from utils.auth_utils import extractPayload, genToken, verifyToken
 from db.db_enum import Queries
 from db.db_helpers import *
 from models.fast_api_models import *
@@ -30,10 +30,12 @@ async def root():
 @app.post('/doctor/login', status_code=status.HTTP_200_OK)
 def doctor_login(request:LoginRequest):
  
-    present = user_present(Queries.DOCTOR_TABLE_NAME.value,(request.email,request.password))
-    
-    if present:
-        token = genToken(request.dict())
+    # present = user_present(Queries.DOCTOR_TABLE_NAME.value,(request.email,request.password))
+    id = get_id_of_user(Queries.DOCTOR_TABLE_NAME.value,(request.email,request.password))
+    if id!=-1:
+        data = request.dict()
+        data["id"] = id
+        token = genToken(data)
         data = {"message":"SUCCESS","result":[{"token":token}]}
         response = LoginResponse(**data)
         return response
@@ -60,27 +62,29 @@ def doctor_register(request:Doctor):
 
 @app.post('/doctor/get-patients')
 def doctor_get_patients(token:TokenRequest):
-    present,id = verifyToken(token.token)
-    if present:
+    try:
+        data = extractPayload(token.token)
+        id = data["id"]
         result = fetch_operation(Queries.FETCH_PATIENTS_OF_DOCTOR,(id,))
         return {"message":"Success","result":result}
     #fetch operation
-    else:
+    except:
         data = {"message":"Invalid token","result":None}
         raise HTTPException(404,data)
 
 @app.post('/doctor/all-records')
 def doctor_all_records(token:TokenRequest):
-    present,id = verifyToken(token.token)
-    if present:
+    try:
+        data =extractPayload(token.token)
+        id = data["id"]
         result = fetch_operation(Queries.MY_PATIENTS_ALL_RECORDS,(id,))
         #have to refine columns
         return {"message":"Success","result":result}
     #fetch operation
-    else:
+    except:
         data = {"message":"Invalid token","result":None}
         raise HTTPException(404,data)
-    pass
+    
 
 
 
@@ -124,25 +128,35 @@ async def predict_and_add_data(record:Record, background_tasks: BackgroundTasks)
     return {"message":"Success","result":[{"prediction":result.target}]}
 
 @app.post('/patient/my-records')
-def patient_my_records(token:str):
-    present,id = verifyToken(token)
-    if present:
+def patient_my_records(token:TokenRequest):
+    try:
+        data =extractPayload(token.token)
+        id = data["id"]
         result = fetch_operation(Queries.FETCH_PATIENT_ALL_RECORDS,(id,))
         #have to refine columns
         return {"message":"Success","result":result}
     #fetch operation
-    else:
+    except:
         data = {"message":"Invalid token","result":None}
         raise HTTPException(404,data)
-    pass
 
-@app.get('/patient/record')#req params
-def patient_date_records(request:TokenRequest):
-    print(request.dict())
-    return {"message":"suscces"}
+@app.post('/patient/myinfo')#req params
+def patient_date_records(token:TokenRequest):
+    
+    try:
+        data =extractPayload(token.token)
+        id = data["id"]
+        result = fetch_operation(Queries.FETCH_SINGLE_PATIENT,(id,))
+        #have to refine columns
+        return {"message":"Success","result":result}
+    #fetch operation
+    except:
+        data = {"message":"Invalid token","result":None}
+        raise HTTPException(404,data)
 
 if __name__ == "__main__":
     import uvicorn
     import os
     server_port = int(os.environ.get('PORT', 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=server_port, log_level="info")
+    #uvicorn.run("main:app",)

@@ -14,6 +14,7 @@ class Queries(Enum):
 
     FETCH_DOCTORS = "SELECT * FROM doctor"
     FETCH_PATIENTS = "SELECT * FROM patients"
+    FETCH_SINGLE_PATIENT = "SELECT * FROM patient where id=%s"
     FETCH_ALL_PATIENTS_ID = ""
     FETCH_ALL_PATIENTS_NAME_ID = "SELECT id,name FROM patient"
 
