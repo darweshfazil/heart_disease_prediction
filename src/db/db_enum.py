@@ -13,7 +13,7 @@ class Queries(Enum):
     ADD_PATIENT = "INSERT INTO patient(name,email,password,doc_id) VALUES (%s,%s,%s,%s)"
 
     FETCH_DOCTORS = "SELECT * FROM doctor"
-    FETCH_PATIENTS = "SELECT * FROM patients"
+    FETCH_PATIENTS = "SELECT * FROM patient"
     FETCH_SINGLE_PATIENT = "SELECT * FROM patient where id=%s"
     FETCH_ALL_PATIENTS_ID = ""
     FETCH_ALL_PATIENTS_NAME_ID = "SELECT id,name FROM patient"
@@ -29,3 +29,4 @@ class Queries(Enum):
     DOCTOR_LOGIN = "SELECT COUNT(id) FROM doctor WHERE email=%s AND password=%s"
     PATIENT_LOGIN = "SELECT COUNT(id) FROM patient WHERE email=%s AND password=%s"
         
+    DOCTOR_ID_LEAST_PATIENT = "select doctor.id,COUNT(patient.doc_id) as id_count from doctor left join patient on doctor.id = patient.doc_id GROUP BY doctor.id ORDER BY id_count limit 1"

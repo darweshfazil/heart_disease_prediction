@@ -95,6 +95,9 @@ def patient_register(request:Patient):
     present = user_present(Queries.PATIENT_TABLE_NAME.value,(request.email,request.password))
     if not present:
         #register
+        least_ids = fetch_operation(Queries.DOCTOR_ID_LEAST_PATIENT,())
+        request.doc_id = int(least_ids[0]["id"])
+        #print(request.tuple_for_insert())
         result = insert_operation(Queries.ADD_PATIENT,request.tuple_for_insert())
         if result:
             return {"message":"success"}
@@ -106,10 +109,11 @@ def patient_register(request:Patient):
 
 @app.post('/patient/login')
 def patient_login(request:LoginRequest):
-    present = user_present(Queries.PATIENT_TABLE_NAME.value,(request.email,request.password))
-    
-    if present:
-        token = genToken(request.dict())
+    id = get_id_of_user(Queries.PATIENT_TABLE_NAME.value,(request.email,request.password))
+    if id!=-1:
+        data = request.dict()
+        data["id"] = id
+        token = genToken(data)
         data = {"message":"SUCCESS","result":[{"token":token}]}
         response = LoginResponse(**data)
         return response
